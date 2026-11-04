@@ -3,7 +3,8 @@ name: Сборка TeleSave
 on:
   workflow_dispatch:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths-ignore: ["README.md"]
 
 jobs:
   build:
@@ -32,8 +33,18 @@ jobs:
           name: TeleSave-Setup
           path: output/*.exe
 
-      - name: Релиз (для тегов v*)
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Версия
+        id: ver
+        shell: bash
+        run: echo "v=$(python -c 'from telesave.paths import APP_VERSION; print(APP_VERSION)')" >> "$GITHUB_OUTPUT"
+
+      - name: Релиз
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.ver.outputs.v }}
+          name: TeleSave ${{ steps.ver.outputs.v }}
+          target_commitish: ${{ github.sha }}
+          body: |
+            Скачайте **TeleSave-Setup-${{ steps.ver.outputs.v }}.exe** ниже и запустите.
+            Если Windows покажет «Неизвестный издатель» — «Подробнее» → «Выполнить в любом случае».
           files: output/*.exe
