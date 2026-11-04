@@ -1,0 +1,39 @@
+name: Сборка TeleSave
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Зависимости
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Сборка EXE и установщика
+        run: python build.py
+
+      - name: Загрузить установщик
+        uses: actions/upload-artifact@v4
+        with:
+          name: TeleSave-Setup
+          path: output/*.exe
+
+      - name: Релиз (для тегов v*)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output/*.exe
