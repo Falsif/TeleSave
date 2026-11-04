@@ -1,4 +1,4 @@
-; Установщик TeleSave (Inno Setup 6.3+)
+﻿; Установщик TeleSave (Inno Setup 6.3+)
 #ifndef AppVersion
   #define AppVersion "1.0.0"
 #endif
